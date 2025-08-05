@@ -64,19 +64,13 @@ public class FakeBlockTestClient implements ClientModInitializer {
             spawnPos = playerPos.add(0, 3.0, 0);
         }
         
-        // Create and spawn the client-side falling sand entity
-        ClientFallingSandEntity fallingSand = ClientFallingSandEntity.createWithBlockState(
-            FakeBlockTest.CLIENT_FALLING_SAND,
-            world,
-            spawnPos.x,
-            spawnPos.y,
-            spawnPos.z,
-            Blocks.SAND.getDefaultState()
-        );
+        // Create and spawn the client-side floating diamond ore entity
+        ClientFallingSandEntity fallingSand = new ClientFallingSandEntity(FakeBlockTest.CLIENT_FALLING_SAND, world);
+        fallingSand.setPosition(spawnPos.x, spawnPos.y, spawnPos.z);
         
         // Add the entity to the client world
         if (addClientEntity(world, fallingSand)) {
-            FakeBlockTest.LOGGER.info("Spawned client-side falling sand at {}, {}, {}", 
+            FakeBlockTest.LOGGER.info("Spawned client-side floating diamond ore at {}, {}, {}", 
                 spawnPos.x, spawnPos.y, spawnPos.z);
         }
     }

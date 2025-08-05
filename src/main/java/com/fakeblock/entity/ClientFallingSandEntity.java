@@ -15,11 +15,11 @@ public class ClientFallingSandEntity extends FallingBlockEntity {
         this.dropItem = false;
     }
 
-    public static ClientFallingSandEntity createWithBlockState(EntityType<ClientFallingSandEntity> entityType, World world, double x, double y, double z, BlockState blockState) {
-        ClientFallingSandEntity entity = new ClientFallingSandEntity(entityType, world);
-        entity.setPosition(x, y, z);
-        return entity;
+    @Override
+    public BlockState getBlockState() {
+        return Blocks.DIAMOND_ORE.getDefaultState();
     }
+
 
     @Override
     public void tick() {
