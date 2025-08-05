@@ -40,6 +40,16 @@ public class ClientFallingSandEntity extends FallingBlockEntity {
     }
 
     @Override
+    public boolean hasNoGravity() {
+        return true;
+    }
+
+    @Override
+    public boolean isGlowing() {
+        return true;
+    }
+
+    @Override
     public boolean isOnGround() {
         // Check if the entity has landed
         return super.isOnGround();
