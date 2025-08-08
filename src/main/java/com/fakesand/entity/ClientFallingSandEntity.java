@@ -1,6 +1,6 @@
-package com.fakeblock.entity;
+package com.fakesand.entity;
 
-import com.fakeblock.FakeBlockTestClient;
+import com.fakesand.FakeSandModClient;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -23,7 +23,7 @@ public class ClientFallingSandEntity extends FallingBlockEntity {
 
     @Override
     public void tick() {
-        if (!FakeBlockTestClient.isGravityEnabled()) {
+        if (!FakeSandModClient.isGravityEnabled()) {
             // Skip normal falling block physics when gravity is disabled
             this.lifeTime++;
             
@@ -52,12 +52,12 @@ public class ClientFallingSandEntity extends FallingBlockEntity {
 
     @Override
     public boolean hasNoGravity() {
-        return !FakeBlockTestClient.isGravityEnabled();
+        return !FakeSandModClient.isGravityEnabled();
     }
 
     @Override
     public boolean isGlowing() {
-        return FakeBlockTestClient.isOutlineEnabled();
+        return FakeSandModClient.isOutlineEnabled();
     }
 
     public int getLifeTime() {

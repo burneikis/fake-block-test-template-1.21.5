@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"id": "fake-block-test",
+	"id": "fake-sand-mod",
 	"version": "${version}",
-	"name": "Fake Block Test",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Fake Sand Mod",
+	"description": "Spawn fake falling sand blocks with toggleable gravity and outlines!",
 	"authors": [
 		"Me!"
 	],
@@ -12,18 +12,18 @@
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/fake-block-test/icon.png",
+	"icon": "assets/fake-sand-mod/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.fakeblock.FakeBlockTest"
+			"com.fakesand.FakeSandMod"
 		],
 		"client": [
-			"com.fakeblock.FakeBlockTestClient"
+			"com.fakesand.FakeSandModClient"
 		]
 	},
 	"mixins": [
-		"fake-block-test.mixins.json"
+		"fake-sand-mod.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.16.14",

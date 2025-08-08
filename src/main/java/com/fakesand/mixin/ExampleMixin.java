@@ -1,4 +1,4 @@
-package com.fakeblock.mixin;
+package com.fakesand.mixin;
 
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;

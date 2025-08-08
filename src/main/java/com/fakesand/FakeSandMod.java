@@ -1,6 +1,6 @@
-package com.fakeblock;
+package com.fakesand;
 
-import com.fakeblock.entity.ClientFallingSandEntity;
+import com.fakesand.entity.ClientFallingSandEntity;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -13,8 +13,8 @@ import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FakeBlockTest implements ModInitializer {
-	public static final String MOD_ID = "fake-block-test";
+public class FakeSandMod implements ModInitializer {
+	public static final String MOD_ID = "fake-sand-mod";
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -31,6 +31,6 @@ public class FakeBlockTest implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("Fake Block Test mod initialized!");
+		LOGGER.info("Fake Sand Mod initialized!");
 	}
 }

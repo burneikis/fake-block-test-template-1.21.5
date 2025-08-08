@@ -1,6 +1,6 @@
-package com.fakeblock;
+package com.fakesand;
 
-import com.fakeblock.entity.ClientFallingSandEntity;
+import com.fakesand.entity.ClientFallingSandEntity;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -19,7 +19,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class FakeBlockTestClient implements ClientModInitializer {
+public class FakeSandModClient implements ClientModInitializer {
     
     private static KeyBinding spawnFallingSandKey;
     private static KeyBinding toggleOutlineKey;
@@ -33,28 +33,28 @@ public class FakeBlockTestClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         // Use default falling block renderer instead of custom one
-        EntityRendererRegistry.register(FakeBlockTest.CLIENT_FALLING_SAND, FallingBlockEntityRenderer::new);
+        EntityRendererRegistry.register(FakeSandMod.CLIENT_FALLING_SAND, FallingBlockEntityRenderer::new);
         
         // Register keybindings
         spawnFallingSandKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.fake-block-test.spawn_falling_sand",
+            "key.fake-sand-mod.spawn_falling_sand",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_B,
-            "category.fake-block-test.general"
+            "category.fake-sand-mod.general"
         ));
         
         toggleOutlineKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.fake-block-test.toggle_outline",
+            "key.fake-sand-mod.toggle_outline",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_O,
-            "category.fake-block-test.general"
+            "category.fake-sand-mod.general"
         ));
         
         toggleGravityKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.fake-block-test.toggle_gravity",
+            "key.fake-sand-mod.toggle_gravity",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_G,
-            "category.fake-block-test.general"
+            "category.fake-sand-mod.general"
         ));
         
         // Register client tick event
@@ -72,7 +72,7 @@ public class FakeBlockTestClient implements ClientModInitializer {
             }
         });
         
-        FakeBlockTest.LOGGER.info("Fake Block Test client initialized!");
+        FakeSandMod.LOGGER.info("Fake Sand Mod client initialized!");
     }
     
     private void spawnFallingSandEntity(MinecraftClient client) {
@@ -97,12 +97,12 @@ public class FakeBlockTestClient implements ClientModInitializer {
         }
         
         // Create and spawn the client-side falling sand entity
-        ClientFallingSandEntity fallingSand = new ClientFallingSandEntity(FakeBlockTest.CLIENT_FALLING_SAND, world);
+        ClientFallingSandEntity fallingSand = new ClientFallingSandEntity(FakeSandMod.CLIENT_FALLING_SAND, world);
         fallingSand.setPosition(spawnPos.x, spawnPos.y, spawnPos.z);
         
         // Add the entity to the client world
         if (addClientEntity(world, fallingSand)) {
-            FakeBlockTest.LOGGER.info("Spawned client-side falling sand at {}, {}, {}", 
+            FakeSandMod.LOGGER.info("Spawned client-side falling sand at {}, {}, {}", 
                 spawnPos.x, spawnPos.y, spawnPos.z);
         }
     }
@@ -139,7 +139,7 @@ public class FakeBlockTestClient implements ClientModInitializer {
             world.addEntity(entity);
             return true;
         } catch (Exception e) {
-            FakeBlockTest.LOGGER.error("Failed to add client entity: {}", e.getMessage());
+            FakeSandMod.LOGGER.error("Failed to add client entity: {}", e.getMessage());
             return false;
         }
     }
