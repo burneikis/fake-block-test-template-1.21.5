@@ -43,29 +43,26 @@ public class ClientFallingSandEntityRenderer extends EntityRenderer<FallingBlock
                 .getParts(Random.create(blockState.getRenderingSeed(renderState.fallingBlockPos)));
             
             // Key insight: When an entity is glowing, Minecraft's WorldRenderer uses an
-            // OutlineVertexConsumerProvider that captures geometry for outline rendering.
+            // OutlineVertexConsumerProvider which wraps render layers to create outlines.
             // 
-            // We check if we have an OutlineVertexConsumerProvider (which happens when entity.isGlowing())
-            // and render differently:
-            // - For outline rendering: use normal render layer to provide geometry
-            // - For normal rendering: skip rendering entirely to make faces invisible
-            
-            if (vertexConsumerProvider instanceof net.minecraft.client.render.OutlineVertexConsumerProvider) {
-                // Entity is glowing - render normally so outline system can capture geometry
-                this.blockRenderManager
-                    .getModelRenderer()
-                    .render(
-                        renderState,
-                        list,
-                        blockState,
-                        renderState.currentPos,
-                        matrixStack,
-                        vertexConsumerProvider.getBuffer(RenderLayer.getEntitySolid(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)),
-                        false,
-                        OverlayTexture.DEFAULT_UV
-                    );
-            }
-            // If not glowing, render nothing (faces will be invisible)
+            // We need to use a render layer that supports outlines (affectsOutline=true)
+            // but render with full transparency to make faces invisible.
+            // 
+            // RenderLayer.getEntityTranslucent() supports outlines and allows alpha blending.
+            this.blockRenderManager
+                .getModelRenderer()
+                .render(
+                    renderState,
+                    list,
+                    blockState,
+                    renderState.currentPos,
+                    matrixStack,
+                    new InvisibleVertexConsumer(vertexConsumerProvider.getBuffer(
+                        RenderLayer.getEntityTranslucent(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, true)
+                    )),
+                    false,
+                    OverlayTexture.DEFAULT_UV
+                );
             
             matrixStack.pop();
             super.render(renderState, matrixStack, vertexConsumerProvider, light);
