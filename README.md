@@ -86,13 +86,18 @@ spawnFallingSandKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 **File:** `src/main/java/com/fakeblock/FakeBlockTestClient.java:95`
 
 ```java
+private AtomicInteger entityIdCounter = new AtomicInteger(1000000);
+
 private int generateClientEntityId() {
-    // Generate a negative ID to avoid conflicts with server entities
-    return -(int)(System.currentTimeMillis() % Integer.MAX_VALUE);
+    return -entityIdCounter.incrementAndGet();
 }
 ```
 
-Server entities typically use positive IDs, so negative IDs prevent conflicts.
+**Entity ID Safety:**
+- Uses an `AtomicInteger` counter starting at 1,000,000 for thread-safe ID generation
+- Returns negative IDs to avoid conflicts with server entities (which use positive IDs)
+- Ensures each client-side entity gets a unique, collision-free identifier
+- Prevents potential issues from timestamp-based ID collisions in rapid spawning scenarios
 
 #### 5. Configuration Files
 

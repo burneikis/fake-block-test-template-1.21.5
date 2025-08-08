@@ -6,7 +6,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -17,9 +16,12 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class FakeBlockTestClient implements ClientModInitializer {
     
     private static KeyBinding spawnFallingSandKey;
+    private AtomicInteger entityIdCounter = new AtomicInteger(1000000);
     
     @Override
     public void onInitializeClient() {
@@ -91,8 +93,6 @@ public class FakeBlockTestClient implements ClientModInitializer {
     }
     
     private int generateClientEntityId() {
-        // Generate a negative ID to avoid conflicts with server entities
-        // Server entities typically use positive IDs
-        return -(int)(System.currentTimeMillis() % Integer.MAX_VALUE);
+        return -entityIdCounter.incrementAndGet();
     }
 }
