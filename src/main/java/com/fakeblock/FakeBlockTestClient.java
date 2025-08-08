@@ -1,6 +1,5 @@
 package com.fakeblock;
 
-import com.fakeblock.client.ClientFallingSandEntityRenderer;
 import com.fakeblock.entity.ClientFallingSandEntity;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -8,9 +7,11 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.render.entity.FallingBlockEntityRenderer;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.text.Text;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
@@ -21,16 +22,36 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FakeBlockTestClient implements ClientModInitializer {
     
     private static KeyBinding spawnFallingSandKey;
+    private static KeyBinding toggleOutlineKey;
+    private static KeyBinding toggleGravityKey;
+    
     private AtomicInteger entityIdCounter = new AtomicInteger(1000000);
+    
+    private static boolean outlineEnabled = true;
+    private static boolean gravityEnabled = true;
     
     @Override
     public void onInitializeClient() {
-        // Register entity renderer
-        EntityRendererRegistry.register(FakeBlockTest.CLIENT_FALLING_SAND, ClientFallingSandEntityRenderer::new);
+        // Use default falling block renderer instead of custom one
+        EntityRendererRegistry.register(FakeBlockTest.CLIENT_FALLING_SAND, FallingBlockEntityRenderer::new);
         
-        // Register keybinding
+        // Register keybindings
         spawnFallingSandKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.fake-block-test.spawn_falling_sand",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_B,
+            "category.fake-block-test.general"
+        ));
+        
+        toggleOutlineKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+            "key.fake-block-test.toggle_outline",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_O,
+            "category.fake-block-test.general"
+        ));
+        
+        toggleGravityKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+            "key.fake-block-test.toggle_gravity",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_G,
             "category.fake-block-test.general"
@@ -40,6 +61,14 @@ public class FakeBlockTestClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (spawnFallingSandKey.wasPressed()) {
                 spawnFallingSandEntity(client);
+            }
+            
+            while (toggleOutlineKey.wasPressed()) {
+                toggleOutline(client);
+            }
+            
+            while (toggleGravityKey.wasPressed()) {
+                toggleGravity(client);
             }
         });
         
@@ -53,28 +82,51 @@ public class FakeBlockTestClient implements ClientModInitializer {
         
         ClientWorld world = client.world;
         
-        // Get player's look direction and spawn falling sand above crosshair target
+        // Get player's look direction and spawn falling sand 4 blocks above target or from head
         HitResult hitResult = client.crosshairTarget;
         Vec3d spawnPos;
         
         if (hitResult != null && hitResult.getType() == HitResult.Type.BLOCK) {
+            // Spawn 4 blocks above the targeted block
             BlockHitResult blockHit = (BlockHitResult) hitResult;
-            spawnPos = Vec3d.of(blockHit.getBlockPos()).add(0.5, 2.0, 0.5);
+            spawnPos = Vec3d.of(blockHit.getBlockPos()).add(0.5, 4.0, 0.5);
         } else {
-            // Spawn above player if no block is targeted
+            // Spawn from player's head position
             Vec3d playerPos = client.player.getPos();
-            spawnPos = playerPos.add(0, 3.0, 0);
+            spawnPos = playerPos.add(0, client.player.getEyeHeight(client.player.getPose()), 0);
         }
         
-        // Create and spawn the client-side floating diamond ore entity
+        // Create and spawn the client-side falling sand entity
         ClientFallingSandEntity fallingSand = new ClientFallingSandEntity(FakeBlockTest.CLIENT_FALLING_SAND, world);
         fallingSand.setPosition(spawnPos.x, spawnPos.y, spawnPos.z);
         
         // Add the entity to the client world
         if (addClientEntity(world, fallingSand)) {
-            FakeBlockTest.LOGGER.info("Spawned client-side floating diamond ore at {}, {}, {}", 
+            FakeBlockTest.LOGGER.info("Spawned client-side falling sand at {}, {}, {}", 
                 spawnPos.x, spawnPos.y, spawnPos.z);
         }
+    }
+    
+    private void toggleOutline(MinecraftClient client) {
+        outlineEnabled = !outlineEnabled;
+        if (client.player != null) {
+            client.player.sendMessage(Text.literal("Outline: " + (outlineEnabled ? "ON" : "OFF")), true);
+        }
+    }
+    
+    private void toggleGravity(MinecraftClient client) {
+        gravityEnabled = !gravityEnabled;
+        if (client.player != null) {
+            client.player.sendMessage(Text.literal("Gravity: " + (gravityEnabled ? "ON" : "OFF")), true);
+        }
+    }
+    
+    public static boolean isOutlineEnabled() {
+        return outlineEnabled;
+    }
+    
+    public static boolean isGravityEnabled() {
+        return gravityEnabled;
     }
     
     private boolean addClientEntity(ClientWorld world, Entity entity) {

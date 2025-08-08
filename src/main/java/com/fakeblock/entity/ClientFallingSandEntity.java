@@ -1,5 +1,6 @@
 package com.fakeblock.entity;
 
+import com.fakeblock.FakeBlockTestClient;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -17,23 +18,33 @@ public class ClientFallingSandEntity extends FallingBlockEntity {
 
     @Override
     public BlockState getBlockState() {
-        return Blocks.DIAMOND_ORE.getDefaultState();
+        return Blocks.SAND.getDefaultState();
     }
-
 
     @Override
     public void tick() {
+        if (!FakeBlockTestClient.isGravityEnabled()) {
+            // Skip normal falling block physics when gravity is disabled
+            this.lifeTime++;
+            
+            if (this.lifeTime > MAX_LIFETIME) {
+                this.discard();
+            }
+            
+            if (this.getY() < -64 || this.getY() > 320) {
+                this.discard();
+            }
+            return;
+        }
+        
         super.tick();
         
-        // Increment lifetime counter
         this.lifeTime++;
         
-        // Remove entity after maximum lifetime to prevent memory leaks
         if (this.lifeTime > MAX_LIFETIME) {
             this.discard();
         }
         
-        // Remove if entity gets too far from spawn point or goes below world
         if (this.getY() < -64 || this.getY() > 320) {
             this.discard();
         }
@@ -41,18 +52,12 @@ public class ClientFallingSandEntity extends FallingBlockEntity {
 
     @Override
     public boolean hasNoGravity() {
-        return true;
+        return !FakeBlockTestClient.isGravityEnabled();
     }
 
     @Override
     public boolean isGlowing() {
-        return true;
-    }
-
-    @Override
-    public boolean isOnGround() {
-        // Check if the entity has landed
-        return super.isOnGround();
+        return FakeBlockTestClient.isOutlineEnabled();
     }
 
     public int getLifeTime() {

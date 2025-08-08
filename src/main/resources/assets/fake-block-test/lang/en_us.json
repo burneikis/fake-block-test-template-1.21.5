@@ -1,4 +1,6 @@
 {
   "key.fake-block-test.spawn_falling_sand": "Spawn Falling Sand",
+  "key.fake-block-test.toggle_outline": "Toggle Outline",
+  "key.fake-block-test.toggle_gravity": "Toggle Gravity",
   "category.fake-block-test.general": "Fake Block Test"
 }
