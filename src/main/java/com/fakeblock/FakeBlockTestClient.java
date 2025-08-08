@@ -1,6 +1,6 @@
 package com.fakeblock;
 
-import net.minecraft.client.render.entity.FallingBlockEntityRenderer;
+import com.fakeblock.client.ClientFallingSandEntityRenderer;
 import com.fakeblock.entity.ClientFallingSandEntity;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -26,7 +26,7 @@ public class FakeBlockTestClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         // Register entity renderer
-        EntityRendererRegistry.register(FakeBlockTest.CLIENT_FALLING_SAND, FallingBlockEntityRenderer::new);
+        EntityRendererRegistry.register(FakeBlockTest.CLIENT_FALLING_SAND, ClientFallingSandEntityRenderer::new);
         
         // Register keybinding
         spawnFallingSandKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
