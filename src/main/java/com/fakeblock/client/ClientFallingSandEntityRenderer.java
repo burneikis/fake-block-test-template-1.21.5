@@ -21,6 +21,14 @@ import net.minecraft.util.math.random.Random;
 
 import java.util.List;
 
+/**
+ * Custom renderer for ClientFallingSandEntity that renders blocks with invisible faces
+ * but preserves glowing outlines.
+ * 
+ * <p>This renderer uses a technique called "transparent face rendering" where the block
+ * geometry is rendered with full transparency (alpha = 0) while maintaining the vertex
+ * data needed for Minecraft's outline system to generate glowing effects.</p>
+ */
 @Environment(EnvType.CLIENT)
 public class ClientFallingSandEntityRenderer extends EntityRenderer<FallingBlockEntity, FallingBlockEntityRenderState> {
     private final BlockRenderManager blockRenderManager;
@@ -34,39 +42,61 @@ public class ClientFallingSandEntityRenderer extends EntityRenderer<FallingBlock
     @Override
     public void render(FallingBlockEntityRenderState renderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light) {
         BlockState blockState = renderState.blockState;
-        if (blockState.getRenderType() == BlockRenderType.MODEL) {
-            matrixStack.push();
-            matrixStack.translate(-0.5, 0.0, -0.5);
-            
-            List<BlockModelPart> list = this.blockRenderManager
-                .getModel(blockState)
-                .getParts(Random.create(blockState.getRenderingSeed(renderState.fallingBlockPos)));
-            
-            // Key insight: When an entity is glowing, Minecraft's WorldRenderer uses an
-            // OutlineVertexConsumerProvider which wraps render layers to create outlines.
-            // 
-            // We need to use a render layer that supports outlines (affectsOutline=true)
-            // but render with full transparency to make faces invisible.
-            // 
-            // RenderLayer.getEntityTranslucent() supports outlines and allows alpha blending.
-            this.blockRenderManager
-                .getModelRenderer()
-                .render(
-                    renderState,
-                    list,
-                    blockState,
-                    renderState.currentPos,
-                    matrixStack,
-                    new InvisibleVertexConsumer(vertexConsumerProvider.getBuffer(
-                        RenderLayer.getEntityTranslucent(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, true)
-                    )),
-                    false,
-                    OverlayTexture.DEFAULT_UV
-                );
-            
-            matrixStack.pop();
-            super.render(renderState, matrixStack, vertexConsumerProvider, light);
+        if (blockState.getRenderType() != BlockRenderType.MODEL) {
+            return;
         }
+
+        matrixStack.push();
+        matrixStack.translate(-0.5, 0.0, -0.5);
+        
+        // Generate the block model parts using the block's render seed
+        List<BlockModelPart> modelParts = this.blockRenderManager
+            .getModel(blockState)
+            .getParts(Random.create(blockState.getRenderingSeed(renderState.fallingBlockPos)));
+        
+        // Render the block with invisible faces but preserve outline capability
+        this.renderInvisibleBlock(renderState, modelParts, blockState, matrixStack, vertexConsumerProvider);
+        
+        matrixStack.pop();
+        super.render(renderState, matrixStack, vertexConsumerProvider, light);
+    }
+
+    /**
+     * Renders a block with invisible faces while preserving outline rendering capability.
+     * 
+     * <p><strong>How the invisibility works:</strong></p>
+     * <ul>
+     *   <li><strong>Render Layer:</strong> Uses {@code RenderLayer.getEntityTranslucent()} which supports
+     *       outline generation ({@code affectsOutline=true})</li>
+     *   <li><strong>Transparency:</strong> Wraps the vertex consumer with {@code InvisibleVertexConsumer}
+     *       which intercepts all color calls and sets alpha to 0</li>
+     *   <li><strong>Geometry Preservation:</strong> All vertex positions, normals, and texture coordinates
+     *       are passed through unchanged, allowing the outline system to detect the geometry</li>
+     *   <li><strong>Result:</strong> Block faces are completely invisible, but glowing outlines work perfectly</li>
+     * </ul>
+     */
+    private void renderInvisibleBlock(FallingBlockEntityRenderState renderState, List<BlockModelPart> modelParts, 
+                                    BlockState blockState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider) {
+        
+        // Use EntityTranslucent render layer - supports outlines and alpha blending
+        RenderLayer renderLayer = RenderLayer.getEntityTranslucent(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, true);
+        VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(renderLayer);
+        
+        // Wrap with InvisibleVertexConsumer to make faces transparent
+        InvisibleVertexConsumer invisibleConsumer = new InvisibleVertexConsumer(vertexConsumer);
+        
+        this.blockRenderManager
+            .getModelRenderer()
+            .render(
+                renderState,
+                modelParts,
+                blockState,
+                renderState.currentPos,
+                matrixStack,
+                invisibleConsumer,
+                false,
+                OverlayTexture.DEFAULT_UV
+            );
     }
 
     @Override
