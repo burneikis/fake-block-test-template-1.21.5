@@ -40,3 +40,7 @@ replay_*.log
 *.jfr
 
 /decompiled-minecraft
+
+# test server files
+
+test-server/
